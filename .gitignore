@@ -1,0 +1,14 @@
+**/.git/
+**/.github/
+**/.gitattributes
+
+# tmux plugins
+# I want to keep the tmux-battery because of an issue with
+# my uConsole battery when a bluetooth device is connected.
+tmux/plugins/tmux-mem-cpu-load
+tmux/plugins/tmux-resurrect
+tmux/plugins/tmux-sensible
+tmux/plugins/tpm
+
+# Wallpapers
+**/wallpapers
