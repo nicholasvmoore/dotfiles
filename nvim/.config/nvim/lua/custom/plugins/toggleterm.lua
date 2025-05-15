@@ -3,8 +3,8 @@ return {
     'akinsho/toggleterm.nvim',
     version = '*',
     opts = {
-      start_in_insert = false,
-      persistent_mode = true,
+      start_in_insert = true,
+      persistent_mode = false,
       shell = vim.o.shell,
       auto_scroll = true,
 
