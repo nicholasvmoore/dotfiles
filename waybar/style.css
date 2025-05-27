@@ -1,6 +1,6 @@
 * {
   font-family: JetbrainsMono Nerd Font;
-  font-size: 18px;
+  font-size: 12px;
   min-height: 0;
   padding-right: 2px;
   padding-left: 2px;
@@ -36,13 +36,13 @@
   border-radius: 5px;
 }
 
+#network,
 #custom-music,
 #tray,
 #backlight,
 #clock,
 #battery,
 #pulseaudio,
-#network,
 #cpu,
 #memory,
 #custom-lock,
