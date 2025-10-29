@@ -1,6 +1,6 @@
 * {
   font-family: JetbrainsMono Nerd Font;
-  font-size: 10px;
+  font-size: 12px;
   min-height: 0;
   padding-right: 2px;
   padding-left: 2px;
@@ -36,13 +36,13 @@
   border-radius: 5px;
 }
 
+#network,
 #custom-music,
 #tray,
 #backlight,
 #clock,
 #battery,
 #pulseaudio,
-#network,
 #cpu,
 #memory,
 #custom-lock,
@@ -53,7 +53,7 @@
 }
 
 #memory {
-  border-radius: 0px 5px 5px 0px;
+  border-radius: 0px 0px 0px 0px;
 }
 
 #clock {
@@ -83,9 +83,14 @@
   border-radius: 0;
 }
 
+#bluetooth, #bluetooth.on, #bluetooth.connected #bluetooth.disabled #bluetooth.off {
+  border-radius: 0px 0px 0px 0%;
+  margin-left: 1rem;
+}
+
 #pulseaudio {
   color: #ea999c;
-  border-radius: 5px 0px 0px 5%;
+  border-radius: 0px 0px 0px 0%;
   margin-left: 1rem;
 }
 
