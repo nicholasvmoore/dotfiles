@@ -398,8 +398,32 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'williamboman/mason.nvim', opts = {} },
-      'williamboman/mason-lspconfig.nvim',
+      {
+        'williamboman/mason.nvim',
+        opts = {
+          ui = {
+            icons = {
+              package_installed = '✓',
+              package_pending = '➜',
+              package_uninstalled = '✗',
+            },
+          },
+        },
+      },
+      {
+        'williamboman/mason-lspconfig.nvim',
+        opts = {
+          ensure_installed = {
+            'lua_ls',
+            'ansible-language-server',
+            'bash-language-server',
+            'python-lsp-server',
+            'clangd',
+            'terraform_ls',
+            'jinja_lsp',
+          },
+        },
+      },
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
       -- Useful status updates for LSP.
