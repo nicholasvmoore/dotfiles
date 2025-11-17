@@ -28,6 +28,8 @@ vim.opt.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
+vim.o.winborder = 'rounded'
+
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -415,7 +417,9 @@ require('lazy').setup({
         opts = {
           ensure_installed = {
             'lua_ls',
-            'ansible-language-server',
+            'ansible_ls',
+            'pyright',
+            'yamlls',
             'bash-language-server',
             'python-lsp-server',
             'clangd',
@@ -630,15 +634,12 @@ require('lazy').setup({
           -- capabilities = {},
           settings = {
             Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              completion = { callSnippet = 'Replace' },
             },
+            -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+            -- diagnostics = { disable = { 'missing-fields' } },
           },
         },
-
         jinja_lsp = {},
       }
 
@@ -799,9 +800,25 @@ require('lazy').setup({
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        ghost_text = {
+          enabled = true,
+        },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 100,
+          window = {
+            border = 'rounded',
+            min_width = 20,
+            max_height = 30,
+            max_width = 80,
+          },
+        },
+        menu = {
+          auto_show = true,
+          min_width = 15,
+          max_height = 15,
+        },
       },
-
       sources = {
         default = { 'lsp', 'path', 'snippets', 'lazydev' },
         providers = {
@@ -870,7 +887,22 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'python', 'go' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'terraform',
+        'vim',
+        'vimdoc',
+        'python',
+        'go',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
