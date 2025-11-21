@@ -2,8 +2,8 @@
 size = 10
 
 [font.normal]
-family = "Dejavu Sans Mono"
-style = "Regular"
+family = "Hack"
+style = "Bold"
 
 [window]
 opacity = 0.85
