@@ -1,8 +1,9 @@
 -- Plugins with vim.pack (Neovim 0.11+ built-in package manager)
 -- Dependencies must be loaded before the plugins that need them
 --
--- IMPORTANT: On first run, use :PackInstall to install all plugins
--- Other useful commands: :PackUpdate, :PackClean, :PackCheck
+-- IMPORTANT: Manage plugins with:
+--   :lua vim.pack.update()   -- installs missing and updates existing plugins
+--   :lua vim.pack.del({ ... }) -- remove plugins
 vim.pack.add({
   -- Core dependencies
   { src = 'https://github.com/nvim-lua/plenary.nvim' },
@@ -243,6 +244,12 @@ pcall(function()
       },
     },
     extensions = {
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = 'smart_case',
+      },
       ['ui-select'] = {
         require('telescope.themes').get_dropdown(),
       },
@@ -250,8 +257,25 @@ pcall(function()
   }
 
   -- Load Telescope extensions
-  pcall(require('telescope').load_extension, 'fzf')
-  pcall(require('telescope').load_extension, 'ui-select')
+  local telescope = require 'telescope'
+
+  local fzf_loaded = pcall(telescope.load_extension, 'fzf')
+  if not fzf_loaded then
+    -- Match old_config behavior: ensure fzf-native is actually built
+    local fzf_dir = vim.fn.stdpath 'data' .. '/site/pack/core/opt/telescope-fzf-native.nvim'
+    local fzf_lib = vim.fn.glob(fzf_dir .. '/build/libfzf.*')
+
+    if vim.fn.isdirectory(fzf_dir) == 1 and fzf_lib == '' and vim.fn.executable 'make' == 1 then
+      local build = vim.system({ 'make' }, { cwd = fzf_dir }):wait()
+      if build.code == 0 then
+        pcall(telescope.load_extension, 'fzf')
+      else
+        vim.notify('telescope-fzf-native build failed; find_files will use default sorter', vim.log.levels.WARN)
+      end
+    end
+  end
+
+  pcall(telescope.load_extension, 'ui-select')
 
   -- Telescope keymaps
   local builtin = require 'telescope.builtin'
@@ -259,8 +283,42 @@ pcall(function()
   vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
   vim.keymap.set('n', '<leader>sf', function() builtin.find_files { hidden = true } end, { desc = '[S]earch [F]iles' })
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
+  local function live_grep_with_space_and(opts)
+    opts = opts or {}
+
+    local function quote_pcre_literal(term)
+      -- Use \Q...\E so user input is treated literally (no regex parse errors).
+      return '\\Q' .. term:gsub('\\E', '\\E\\\\E\\Q') .. '\\E'
+    end
+
+    builtin.live_grep(vim.tbl_extend('force', {
+      additional_args = function()
+        return { '--pcre2' }
+      end,
+      on_input_filter_cb = function(prompt)
+        prompt = prompt or ''
+
+        local terms = {}
+        for term in prompt:gmatch '%S+' do
+          table.insert(terms, quote_pcre_literal(term))
+        end
+
+        if #terms <= 1 then
+          return { prompt = prompt }
+        end
+
+        local and_pattern = ''
+        for _, term in ipairs(terms) do
+          and_pattern = and_pattern .. '(?=.*' .. term .. ')'
+        end
+
+        return { prompt = and_pattern }
+      end,
+    }, opts))
+  end
+
   vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-  vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
+  vim.keymap.set('n', '<leader>sg', function() live_grep_with_space_and() end, { desc = '[S]earch by [G]rep' })
   vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
   vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
   vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -272,7 +330,7 @@ pcall(function()
     })
   end, { desc = '[/] Fuzzily search in current buffer' })
   vim.keymap.set('n', '<leader>s/', function()
-    builtin.live_grep {
+    live_grep_with_space_and {
       grep_open_files = true,
       prompt_title = 'Live Grep in Open Files',
     }
