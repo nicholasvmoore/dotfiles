@@ -4,7 +4,7 @@
 -- IMPORTANT: Manage plugins with:
 --   :lua vim.pack.update()   -- installs missing and updates existing plugins
 --   :lua vim.pack.del({ ... }) -- remove plugins
-vim.pack.add({
+vim.pack.add {
   -- Core dependencies
   { src = 'https://github.com/nvim-lua/plenary.nvim' },
   { src = 'https://github.com/MunifTanjim/nui.nvim' },
@@ -75,7 +75,7 @@ vim.pack.add({
 
   -- Games / Fun
   { src = 'https://github.com/ThePrimeagen/vim-be-good' },
-})
+}
 
 -- ============================================================================
 -- OPTIONS
@@ -89,7 +89,9 @@ vim.opt.relativenumber = true
 vim.opt.mouse = 'a'
 vim.opt.showmode = false
 vim.o.winborder = 'rounded'
-vim.schedule(function() vim.opt.clipboard = 'unnamedplus' end)
+vim.schedule(function()
+  vim.opt.clipboard = 'unnamedplus'
+end)
 vim.opt.breakindent = true
 vim.opt.undofile = true
 vim.opt.ignorecase = true
@@ -180,7 +182,9 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz')
 vim.api.nvim_create_autocmd('TextYankPost', {
   desc = 'Highlight when yanking (copying) text',
   group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function() vim.highlight.on_yank() end,
+  callback = function()
+    vim.highlight.on_yank()
+  end,
 })
 
 -- ============================================================================
@@ -281,7 +285,9 @@ pcall(function()
   local builtin = require 'telescope.builtin'
   vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
   vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-  vim.keymap.set('n', '<leader>sf', function() builtin.find_files { hidden = true } end, { desc = '[S]earch [F]iles' })
+  vim.keymap.set('n', '<leader>sf', function()
+    builtin.find_files { hidden = true }
+  end, { desc = '[S]earch [F]iles' })
   vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
   local function live_grep_with_space_and(opts)
     opts = opts or {}
@@ -318,7 +324,9 @@ pcall(function()
   end
 
   vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
-  vim.keymap.set('n', '<leader>sg', function() live_grep_with_space_and() end, { desc = '[S]earch by [G]rep' })
+  vim.keymap.set('n', '<leader>sg', function()
+    live_grep_with_space_and()
+  end, { desc = '[S]earch by [G]rep' })
   vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
   vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
   vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
@@ -357,9 +365,9 @@ require('mason').setup {
 -- LSP servers are installed via mason-lspconfig below
 require('mason-tool-installer').setup {
   ensure_installed = {
-    'stylua',        -- Lua formatter
-    'markdownlint',  -- Markdown linter
-    'ruff',          -- Python linter
+    'stylua', -- Lua formatter
+    'markdownlint', -- Markdown linter
+    'ruff', -- Python linter
   },
   auto_update = false,
   run_on_start = true,
@@ -607,33 +615,36 @@ end)
 -- ============================================================================
 -- PLUGIN: nvim-lint
 -- ============================================================================
-pcall(function()
-  local lint = require 'lint'
-  -- Only enable linters that are commonly available
-  -- Install with mason-tool-installer or manually:
-  --   npm install -g markdownlint-cli
-  --   pip install ruff
-  lint.linters_by_ft = {
-    markdown = { 'markdownlint' },
-    python = { 'ruff' },
-    -- json = { 'jsonlint' }, -- Uncomment if jsonlint is installed
-    -- text = { 'vale' }, -- Uncomment if vale is installed
-  }
+local lint = require 'lint'
+-- Only enable linters that are commonly available
+-- Install with mason-tool-installer or manually:
+--   npm install -g markdownlint-cli
+--   pip install ruff
+lint.linters_by_ft = {
+  markdown = { 'markdownlint' },
+  python = { 'ruff' },
+  -- json = { 'jsonlint' }, -- Uncomment if jsonlint is installed
+  -- text = { 'vale' }, -- Uncomment if vale is installed
+}
 
-  local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
-  vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
-    group = lint_augroup,
-    callback = function()
-      if vim.opt_local.modifiable:get() then
-        -- Only lint if a linter is configured for this filetype
-        local ft = vim.bo.filetype
-        if lint.linters_by_ft[ft] then
-          lint.try_lint()
-        end
+local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
+vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+  group = lint_augroup,
+  callback = function()
+    if vim.opt_local.modifiable:get() then
+      -- Only lint if a linter is configured for this filetype
+      local ft = vim.bo.filetype
+      if lint.linters_by_ft[ft] then
+        lint.try_lint()
       end
-    end,
-  })
-end)
+    end
+  end,
+})
+
+require('lint').linters.markdownlint.args = {
+  '--config',
+  vim.fn.expand '$XDG_CONFIG_HOME/nvim/markdownlint.yaml',
+}
 
 -- ============================================================================
 -- PLUGIN: Treesitter
@@ -702,11 +713,21 @@ end)
 -- ============================================================================
 pcall(function()
   require('flash').setup {}
-  vim.keymap.set({ 'n', 'x', 'o' }, 's', function() require('flash').jump() end, { desc = 'Flash' })
-  vim.keymap.set({ 'n', 'x', 'o' }, 'S', function() require('flash').treesitter() end, { desc = 'Flash Treesitter' })
-  vim.keymap.set('o', 'r', function() require('flash').remote() end, { desc = 'Remote Flash' })
-  vim.keymap.set({ 'o', 'x' }, 'R', function() require('flash').treesitter_search() end, { desc = 'Treesitter Search' })
-  vim.keymap.set('c', '<c-s>', function() require('flash').toggle() end, { desc = 'Toggle Flash Search' })
+  vim.keymap.set({ 'n', 'x', 'o' }, 's', function()
+    require('flash').jump()
+  end, { desc = 'Flash' })
+  vim.keymap.set({ 'n', 'x', 'o' }, 'S', function()
+    require('flash').treesitter()
+  end, { desc = 'Flash Treesitter' })
+  vim.keymap.set('o', 'r', function()
+    require('flash').remote()
+  end, { desc = 'Remote Flash' })
+  vim.keymap.set({ 'o', 'x' }, 'R', function()
+    require('flash').treesitter_search()
+  end, { desc = 'Treesitter Search' })
+  vim.keymap.set('c', '<c-s>', function()
+    require('flash').toggle()
+  end, { desc = 'Toggle Flash Search' })
 end)
 
 -- ============================================================================
@@ -718,14 +739,30 @@ pcall(function()
   -- Harpoon2
   harpoon:setup {}
 
-  vim.keymap.set('n', '<leader>a', function() harpoon:list():add() end, { desc = 'Harpoon: Add file' })
-  vim.keymap.set('n', '<C-e>', function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = 'Harpoon: Toggle menu' })
-  vim.keymap.set('n', '<leader>1', function() harpoon:list():select(1) end, { desc = 'Harpoon: File 1' })
-  vim.keymap.set('n', '<leader>2', function() harpoon:list():select(2) end, { desc = 'Harpoon: File 2' })
-  vim.keymap.set('n', '<leader>3', function() harpoon:list():select(3) end, { desc = 'Harpoon: File 3' })
-  vim.keymap.set('n', '<leader>4', function() harpoon:list():select(4) end, { desc = 'Harpoon: File 4' })
-  vim.keymap.set('n', '<C-S-P>', function() harpoon:list():prev() end, { desc = 'Harpoon: Prev file' })
-  vim.keymap.set('n', '<C-S-N>', function() harpoon:list():next() end, { desc = 'Harpoon: Next file' })
+  vim.keymap.set('n', '<leader>a', function()
+    harpoon:list():add()
+  end, { desc = 'Harpoon: Add file' })
+  vim.keymap.set('n', '<C-e>', function()
+    harpoon.ui:toggle_quick_menu(harpoon:list())
+  end, { desc = 'Harpoon: Toggle menu' })
+  vim.keymap.set('n', '<leader>1', function()
+    harpoon:list():select(1)
+  end, { desc = 'Harpoon: File 1' })
+  vim.keymap.set('n', '<leader>2', function()
+    harpoon:list():select(2)
+  end, { desc = 'Harpoon: File 2' })
+  vim.keymap.set('n', '<leader>3', function()
+    harpoon:list():select(3)
+  end, { desc = 'Harpoon: File 3' })
+  vim.keymap.set('n', '<leader>4', function()
+    harpoon:list():select(4)
+  end, { desc = 'Harpoon: File 4' })
+  vim.keymap.set('n', '<C-S-P>', function()
+    harpoon:list():prev()
+  end, { desc = 'Harpoon: Prev file' })
+  vim.keymap.set('n', '<C-S-N>', function()
+    harpoon:list():next()
+  end, { desc = 'Harpoon: Next file' })
 end)
 
 -- ============================================================================
